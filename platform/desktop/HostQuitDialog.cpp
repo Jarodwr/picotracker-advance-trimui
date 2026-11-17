@@ -4,6 +4,8 @@
 
 #include "HostQuitDialog.h"
 
+#include "HostLegend.h"
+
 #include "Adapters/adv/display/font.h"
 
 #include <algorithm>
@@ -43,6 +45,8 @@ bool HostQuitDialog::TakeChanged() {
 
 void HostQuitDialog::Open(uint32_t nowMs, std::vector<HostInputAction> &out) {
   open_ = true;
+  asking_ = false;
+  page_ = 0;
   openedMs_ = nowMs;
   changed_ = true;
   for (int b = 0; b < kPadButtons; ++b) {
@@ -67,18 +71,32 @@ HostQuitDialog::Process(const std::vector<HostInputAction> &in,
       if (!open_) Open(nowMs, out);
       else {
         open_ = false;
+        asking_ = false;
         changed_ = true;
       }
       break;
     case HostInputAction::Type::PadPress:
       if (open_) {
-        if (nowMs - openedMs_ < kIgnoreMs) break;
-        if (action.button == EPBT_A) {
-          confirmed_ = true;
-          open_ = false;
-          changed_ = true;
+        if (asking_) {
+          if (nowMs - askedMs_ < kConfirmIgnoreMs) break;
+          if (action.button == EPBT_A) confirmed_ = true;
+          if (action.button == EPBT_A || action.button == EPBT_B) {
+            open_ = false;
+            asking_ = false;
+            changed_ = true;
+          }
         } else if (action.button == EPBT_B) {
           open_ = false;
+          changed_ = true;
+        } else if (action.button == EPBT_L || action.button == EPBT_R) {
+          const int next = action.button == EPBT_L ? page_ - 1 : page_ + 1;
+          if (next >= 0 && next < kLegendPages) {
+            page_ = next;
+            changed_ = true;
+          }
+        } else if (action.button == EPBT_A && nowMs - openedMs_ >= kIgnoreMs) {
+          asking_ = true;
+          askedMs_ = nowMs;
           changed_ = true;
         }
         break;
@@ -99,6 +117,18 @@ HostQuitDialog::Process(const std::vector<HostInputAction> &in,
 }
 
 void HostQuitDialog::Draw(uint32_t *pixels, int size) const {
+  // Home screen: the legend on the firmware's font grid over the whole frame.
+  for (int y = 0; y < size; ++y)
+    for (int x = 0; x < size; ++x) {
+      const bool edge = x < 2 || x >= size - 2 || y < 2 || y >= size - 2;
+      pixels[y * size + x] = edge ? kBorder : kFill;
+    }
+  const auto lines = BuildLegendPage(profile_, page_);
+  for (size_t row = 0; row < lines.size(); ++row)
+    Text(pixels, size, lines[row].c_str(), 8,
+         static_cast<int>(row) * FONT_CHAR_HEIGHT);
+  if (!asking_) return;
+
   const int w = 460, h = 190;
   const int x0 = (size - w) / 2, y0 = (size - h) / 2;
   for (int y = y0; y < y0 + h; ++y)

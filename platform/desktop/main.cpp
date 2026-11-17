@@ -12,6 +12,7 @@
 #include "HostSystem.h"
 #include "HostFileSystem.h"
 #include "HostEvent.h"
+#include "HostLegend.h"
 #include "HostQuitDialog.h"
 #include "HostVolume.h"
 #include "HostVolumeOverlay.h"
@@ -232,6 +233,7 @@ int main(int argc, char **argv) {
   events.SetJoystickSource(&joystick);
   HostWindowFactory factory(renderer, events);
   HostQuitDialog quitDialog;
+  quitDialog.SetProfile(LoadLegendProfile(inputProfilePath));
   factory.SetQuitDialog(&quitDialog);
   // C-63: indicator for volume changes made by NextUI's keymon. Inert without
   // the shared settings file (every off-device run).
@@ -246,8 +248,8 @@ int main(int argc, char **argv) {
   };
   events.SetQuitDialog(&quitDialog, [&factory] { factory.Refresh(); });
   std::fprintf(stderr,
-               "controls: Menu (or hold Select+Start 1 s) opens the quit "
-               "dialog, A = yes, B = no; Select+Start+L1+R1 exits at once\n");
+               "controls: Menu (or hold Select+Start 1 s) opens the Home "
+               "screen (controls legend, Quit item), B closes it; Select+Start+L1+R1 exits at once\n");
   I_GUIWindowFactory::Install(&factory);
   HostDisplayInstall(renderer);
   AudioSettings audioSettings;

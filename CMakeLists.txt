@@ -51,6 +51,7 @@ add_executable(host_event_check
   tests/host_event_check.cpp
   platform/desktop/HostEvent.cpp
   platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostLegend.cpp
   platform/desktop/HostVolumeOverlay.cpp
   platform/desktop/HostTimer.cpp
   platform/desktop/SDLWindow.cpp
@@ -82,7 +83,10 @@ target_include_directories(host_input_map_check PRIVATE
 
 add_executable(host_quit_dialog_check
   tests/host_quit_dialog_check.cpp
+  tests/host_legend_check.cpp
   platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostLegend.cpp
+  platform/desktop/HostInputProfile.cpp
   platform/desktop/HostInputMap.cpp
 )
 target_include_directories(host_quit_dialog_check PRIVATE
@@ -195,6 +199,7 @@ add_executable(picotracker_desktop
   platform/desktop/HostTimer.cpp
   platform/desktop/HostEvent.cpp
   platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostLegend.cpp
   platform/desktop/HostBattery.cpp
   platform/desktop/HostVolume.cpp
   platform/desktop/HostVolumeOverlay.cpp
@@ -325,6 +330,7 @@ add_executable(host_record_check
   platform/desktop/HostTimer.cpp
   platform/desktop/HostEvent.cpp
   platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostLegend.cpp
   platform/desktop/HostBattery.cpp
   platform/desktop/HostVolume.cpp
   platform/desktop/HostVolumeOverlay.cpp

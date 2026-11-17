@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <vector>
 
+void HostLegendChecks(); // tests/host_legend_check.cpp
+
 using Actions = std::vector<HostInputAction>;
 using Type = HostInputAction::Type;
 
@@ -58,14 +60,22 @@ void IgnoreWindow() {
   HostQuitDialog d;
   d.Process({kRequest}, 1000);
   d.TakeChanged();
-  // A mash during the window neither confirms nor dismisses.
-  CHECK(d.Process({Press(EPBT_A), Release(EPBT_A), Press(EPBT_B),
-                   Release(EPBT_B)},
+  // An A mash during the window neither asks nor quits.
+  CHECK(d.Process({Press(EPBT_A), Release(EPBT_A), Press(EPBT_A),
+                   Release(EPBT_A)},
                   1000 + kWait - 1)
             .empty());
   CHECK(d.IsOpen() && !d.QuitConfirmed() && !d.TakeChanged());
-  // Just after it, A confirms.
+  // Just after it, A on the Quit item asks; it does not quit yet.
   CHECK(d.Process({Press(EPBT_A)}, 1000 + kWait).empty());
+  CHECK(!d.QuitConfirmed() && d.IsOpen() && d.TakeChanged());
+  // The question has its own short ignore window, then A confirms.
+  const uint32_t asked = 1000 + kWait;
+  CHECK(d.Process({Press(EPBT_A)}, asked + HostQuitDialog::kConfirmIgnoreMs - 1)
+            .empty());
+  CHECK(!d.QuitConfirmed() && d.IsOpen());
+  CHECK(d.Process({Press(EPBT_A)}, asked + HostQuitDialog::kConfirmIgnoreMs)
+            .empty());
   CHECK(d.QuitConfirmed() && !d.IsOpen() && d.TakeChanged());
 }
 
@@ -73,7 +83,39 @@ void YesQuits() {
   HostQuitDialog d;
   d.Process({kRequest}, 0);
   d.Process({Press(EPBT_A)}, kWait + 5);
+  CHECK(!d.QuitConfirmed());
+  d.Process({Press(EPBT_A)}, kWait + 5 + HostQuitDialog::kConfirmIgnoreMs);
   CHECK(d.QuitConfirmed());
+}
+
+void NoInQuestionCloses() {
+  HostQuitDialog d;
+  d.Process({kRequest}, 0);
+  d.Process({Press(EPBT_A)}, kWait);
+  d.TakeChanged();
+  const uint32_t t = kWait + HostQuitDialog::kConfirmIgnoreMs;
+  CHECK(d.Process({Press(EPBT_B)}, t).empty());
+  CHECK(!d.IsOpen() && !d.QuitConfirmed() && d.TakeChanged());
+}
+
+void BClosesHomeImmediately() {
+  HostQuitDialog d;
+  d.Process({kRequest}, 0);
+  d.TakeChanged();
+  CHECK(d.Process({Press(EPBT_B)}, 10).empty());
+  CHECK(!d.IsOpen() && !d.QuitConfirmed() && d.TakeChanged());
+}
+
+void PagesSwitchWithLAndR() {
+  HostQuitDialog d;
+  d.Process({kRequest}, 0);
+  d.TakeChanged();
+  CHECK(d.Process({Press(EPBT_R), Release(EPBT_R)}, 5).empty());
+  CHECK(d.IsOpen() && d.TakeChanged());
+  // Past the last page nothing changes; L goes back.
+  CHECK(d.Process({Press(EPBT_R)}, 6).empty() && !d.TakeChanged());
+  CHECK(d.Process({Press(EPBT_L)}, 7).empty() && d.TakeChanged());
+  CHECK(d.Process({Press(EPBT_L)}, 8).empty() && !d.TakeChanged());
 }
 
 void NoCloses() {
@@ -115,12 +157,13 @@ void HardExitWithoutDialog() {
   CHECK(d.QuitConfirmed() && !d.IsOpen());
 }
 
-void DrawsOnlyInsideBox() {
+void DrawsHomeScreen() {
   HostQuitDialog d;
   const int size = 720;
   std::vector<uint32_t> frame(size * size, 0xFF000000u);
   d.Draw(frame.data(), size);
-  CHECK(frame[0] == 0xFF000000u && frame[size * size - 1] == 0xFF000000u);
+  // The Home screen covers the whole frame.
+  CHECK(frame[0] != 0xFF000000u && frame[size * size - 1] != 0xFF000000u);
   CHECK(frame[(size / 2) * size + size / 2] != 0xFF000000u);
   int lit = 0;
   for (const auto p : frame) lit += p == 0xFFFFFFFFu;
@@ -134,11 +177,15 @@ int main() {
   OpenSwallowsAndReleasesHeld();
   IgnoreWindow();
   YesQuits();
+  NoInQuestionCloses();
+  BClosesHomeImmediately();
+  PagesSwitchWithLAndR();
   NoCloses();
   DoubleMenuCloses();
   HardExitWhileOpen();
   HardExitWithoutDialog();
-  DrawsOnlyInsideBox();
+  DrawsHomeScreen();
+  HostLegendChecks();
   std::puts("host_quit_dialog_check passed");
   return 0;
 }
