@@ -1,0 +1,5 @@
+The files carrying this identifier are verbatim copies of third-party licence
+texts (SDL2, Braids, libsamplerate, the GCC Runtime Library Exception). They are
+shipped so the notice conditions of those components are met. They are not
+relicensed: each text governs only the component named in its own heading and in
+packaging/trimui/licenses/components.tsv.

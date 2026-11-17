@@ -1,0 +1,79 @@
+# Copyright (c) 2026 Jarod Wright and contributors
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: linux-arm64
+
+# The trimui-cross job also builds the Trimui Smart Pro release zip.
+# To install it: open the run on the Actions tab, download the artifact
+# PicoTracker-trimui-tg5040-<short commit hash> (GitHub wraps the zip in
+# another zip, so unpack that first), or take the zip from the GitHub release
+# when the run was for a v* tag. Extract the PicoTracker zip at the SD card
+# root so it creates Tools/tg5040/PicoTracker.pak/, then follow
+# docs/trimui-first-run.md for the first launch and the input.ini setup.
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  linux-check:
+    name: Native Linux build and check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: scripts/check-linux.sh
+
+  trimui-cross:
+    name: Trimui aarch64 cross-build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # attaches the zip to the release for v* tags
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: scripts/build-trimui.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: picotracker_desktop-aarch64
+          path: build/trimui/picotracker_desktop
+          if-no-files-found: error
+      - name: Check the packaging script
+        run: tests/trimui/package_check.sh
+      - name: Package the Trimui pak
+        id: package
+        env:
+          SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          short="${SHA:0:7}"
+          version="${short}"
+          if [[ "${REF_TYPE}" == "tag" ]]; then version="${REF_NAME}"; fi
+          zip="build/trimui/PicoTracker-trimui-tg5040-${version}.zip"
+          scripts/package-trimui.sh --version "${version}" --out "${zip}"
+          {
+            echo "zip=${zip}"
+            echo "short=${short}"
+          } >> "${GITHUB_OUTPUT}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PicoTracker-trimui-tg5040-${{ steps.package.outputs.short }}
+          path: ${{ steps.package.outputs.zip }}
+          if-no-files-found: error
+      - name: Attach the zip to the release
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP: ${{ steps.package.outputs.zip }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "${ZIP}" --clobber
+          else
+            gh release create "${TAG}" "${ZIP}" --title "${TAG}" --generate-notes
+          fi

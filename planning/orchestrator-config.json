@@ -1,0 +1,6 @@
+{
+  "max_parallel": 2,
+  "priority_order": ["critical", "high", "medium", "low"],
+  "selection": "priority_then_downstream_count",
+  "isolation": "worktree_for_concurrent_code_edits"
+}

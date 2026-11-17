@@ -1,0 +1,3 @@
+[submodule "upstream/advance-firmware"]
+	path = upstream/advance-firmware
+	url = https://github.com/xiphonics/advance-firmware.git

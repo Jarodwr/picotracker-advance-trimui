@@ -1,0 +1,14 @@
+GCC runtime libraries (libstdc++, libgcc), statically linked
+
+The GNU Compiler Collection runtime libraries are licensed under the GNU
+General Public License version 3 or later, with the GCC Runtime Library
+Exception, version 3.1.
+
+The exception permits propagating the runtime library code, when it is
+combined into an independent work through the normal use of the compiler
+("Target Code"), under terms of your choice, provided the work was built with
+an eligible compilation process and does not use the runtime library to
+create or modify a plugin of the compiler. The full text of the exception is
+at https://www.gnu.org/licenses/gcc-exception-3.1.html and the GPL text is
+shipped in this folder as GPL-3.0-only.txt. The library source is available
+from https://gcc.gnu.org/ (GCC 13 series).

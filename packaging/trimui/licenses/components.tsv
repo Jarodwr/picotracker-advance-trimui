@@ -1,0 +1,16 @@
+# component<TAB>version<TAB>licence<TAB>output file<TAB>source
+# source: upstream:<path under the firmware checkout> | repo:<path in this repository> | template:<file in packaging/trimui/licenses>
+PicoTracker wrapper (this program)	-	GPL-3.0-only	wrapper-GPL-3.0-only.txt	repo:LICENSES/GPL-3.0-only.txt
+picoTracker Advance firmware (upstream notice)	v3.2.1	GPL-3.0-only / BSD-3-Clause baseline	picotracker-LICENSE.txt	upstream:LICENSE
+picoTracker baseline licence	v2.3.0	BSD-3-Clause	picotracker-BSD-3-Clause.txt	upstream:LICENSES/BSD-3-Clause.txt
+picoTracker new contributions	v3.2.1	GPL-3.0-only	GPL-3.0-only.txt	upstream:LICENSES/GPL-3.0-only.txt
+Ubuntu Mono display font	1.0	Ubuntu Font Licence 1.0	Ubuntu-Font-Licence-1.0.txt	upstream:sources/Adapters/adv/display/Ubuntu-Font-Licence-1.0.txt
+AdvanceSID (derived from cRSID 1.1)	1.1	LicenseRef-cRSID-WTF	cRSID-WTF.txt	upstream:LICENSES/LicenseRef-cRSID-WTF.txt
+Dattorro reverb	-	Public domain (LicenseRef-Dattorro-PD)	Dattorro-PD.txt	upstream:LICENSES/LicenseRef-Dattorro-PD.txt
+Mutable Instruments Braids	-	MIT	braids-MIT.txt	template:braids-MIT.txt
+Embedded Template Library	-	MIT	etl-LICENSE.txt	upstream:sources/Externals/etl/LICENSE
+yxml	-	MIT	yxml-COPYING.txt	upstream:sources/Externals/yxml/COPYING
+TinyXML2	-	zlib	tinyxml2-LICENSE.txt	upstream:sources/Externals/TinyXML2/LICENSE.txt
+libsamplerate (bundled sources)	0.2.2	BSD-2-Clause	libsamplerate-BSD-2-Clause.txt	template:libsamplerate-BSD-2-Clause.txt
+SDL2 (headers and link stub at build time; the device's own SDL2 is used at run time, not shipped)	2.30.8	zlib	SDL2-zlib.txt	template:SDL2-zlib.txt
+libstdc++ and libgcc (static)	GCC 13	GPL-3.0-or-later with GCC Runtime Library Exception 3.1	libstdc++-runtime-exception.txt	template:libstdc++-runtime-exception.txt

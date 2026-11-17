@@ -1,0 +1,27 @@
+# PicoTracker input mapping for the Trimui Smart Pro (ADR 0016 section 4).
+# Copy to <data root>/input.ini (.userdata/tg5040/PicoTracker/input.ini).
+# Format: advance_button = trimui_control, one per line. Comments go on their own lines.
+# A missing or malformed file falls back to these defaults; rejected lines are logged.
+#
+# Advance buttons: up down left right a b l r start select
+# Trimui controls: dpad_up dpad_down dpad_left dpad_right east south west north
+#                  l1 r1 l2 r2 start select menu l3 r3, or "none" to unbind.
+# The lines below are the defaults. East is the right face button, south the bottom one.
+# The app sees the pad as 'Xbox 360 Controller' (11 buttons, hat 0 = D-pad). l2 and r2 are
+# analog axes on the device and cannot be bound to an Advance button.
+
+up     = dpad_up
+down   = dpad_down
+left   = dpad_left
+right  = dpad_right
+a      = east
+b      = south
+l      = l1
+r      = r1
+start  = start
+select = select
+
+# Exit chord (fixed): select + start + l1 + r1 held together.
+# Map the left stick to the D-pad (50% dead zone, release at 35%).
+# The right stick and stick clicks are always ignored.
+left_stick_as_dpad = false

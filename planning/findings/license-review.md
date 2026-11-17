@@ -1,0 +1,9 @@
+# License and dependency review at `v2.3.1`
+
+The pinned upstream source has a BSD 3-Clause root [LICENSE](../../upstream/picoTracker/LICENSE). Source redistributions must keep its notice and disclaimer; binary distributions must reproduce them in accompanying materials. The license also restricts using copyright holders' names for endorsement. This is a source inventory, not a legal opinion.
+
+The root license lists bundled components and their own terms: FatFs (BSD-like), FreeRTOS (MIT), SdFat (MIT), TinyXML2 (zlib), Braids (MIT), cRSID (WTFPL-like), ETL (MIT), LVGL (MIT), OPAL (Unlicense-like), Pico SDK (BSD 3-Clause), yxml (MIT), STM32 CMSIS (Apache 2.0), STM32 HAL (BSD 3-Clause), the Advance Ubuntu Mono font (Ubuntu Font Licence 1.0), and the original Pico ZX-Origins font (custom). License files are at the paths listed in the root notice. The `etl` and `pico-sdk` repositories are nested Git submodules, pinned and checked out; the Pico SDK has additional nested dependencies whose notices must be included if shipped.
+
+The Advance display font has its own [Ubuntu Font Licence](../../upstream/picoTracker/sources/Adapters/adv/display/Ubuntu-Font-Licence-1.0.txt). It permits bundling and embedding subject to its notice, font naming and relicensing conditions. Keep the license alongside any distributed desktop font asset; check name requirements if changing the font.
+
+For a desktop build, use only needed dependencies and produce a notice bundle from the actual linked/bundled set. The current upstream root list contains apparent label typos for TinyXML2 and yxml (both labeled as another component); use their referenced license files, not those labels, as the source of truth. No missing license file was found among the listed paths. Recheck any new desktop framework and any current Advance assets added later.

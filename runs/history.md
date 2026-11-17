@@ -1,0 +1,68 @@
+- 2026-11-15T04:52:34.296024+00:00 `pt-source-baseline`: ready → queued. Starting the first investigation job
+- 2026-11-15T04:52:34.321301+00:00 `pt-source-baseline`: queued → running. Inspecting public Advance source and release baseline
+- 2026-11-15T04:53:18.945370+00:00 `pt-source-baseline`: running → blocked. Partial source baseline recorded; GitHub DNS unavailable for exact commit and tree inspection
+- 2026-11-15T05:04:29.676812+00:00 `pt-source-baseline`: blocked → ready. Official source is now available and baseline evidence complete
+- 2026-11-15T05:04:29.703198+00:00 `pt-source-baseline`: ready → queued. Baseline review
+- 2026-11-15T05:04:29.728553+00:00 `pt-source-baseline`: queued → running. Reviewed pinned source and documented feature gaps
+- 2026-11-15T05:04:29.753421+00:00 `pt-source-baseline`: running → review. Findings and exact commit recorded
+- 2026-11-15T05:04:29.778742+00:00 `pt-source-baseline`: review → done. Accepted source baseline; downstream jobs may start
+- 2026-11-15T05:04:34.155702+00:00 `pt-platform-map`: draft → ready. Pinned source baseline accepted
+- 2026-11-15T05:04:34.181995+00:00 `pt-license-review`: draft → ready. Pinned source baseline accepted
+- 2026-11-15T05:04:34.208063+00:00 `pt-memory-limits`: draft → ready. Pinned source baseline accepted
+- 2026-11-15T05:08:47.060408+00:00 `pt-license-review`: ready → queued. Starting license inventory
+- 2026-11-15T05:08:47.085147+00:00 `pt-license-review`: queued → running. Inspecting bundled license notices and submodules
+- 2026-11-15T05:08:47.110096+00:00 `pt-memory-limits`: ready → queued. Starting memory-limit trace
+- 2026-11-15T05:08:47.135169+00:00 `pt-memory-limits`: queued → running. Inspecting Advance sample pools and formats
+- 2026-11-15T05:09:42.309487+00:00 `pt-license-review`: running → review. License inventory documented against pinned source
+- 2026-11-15T05:09:42.334768+00:00 `pt-license-review`: review → done. Accepted license and notice findings
+- 2026-11-15T05:09:42.359894+00:00 `pt-memory-limits`: running → review. Pool and format limits documented
+- 2026-11-15T05:09:42.385446+00:00 `pt-memory-limits`: review → done. Accepted sample-limit findings
+- 2026-11-15T05:09:46.382270+00:00 `pt-platform-map`: ready → queued. Ready after pinned source review
+- 2026-11-15T05:09:46.407057+00:00 `pt-platform-map`: queued → running. Mapping shared code and Advance hardware adapters
+- 2026-11-15T05:10:24.379362+00:00 `pt-platform-map`: running → review. Shared targets and service seams mapped at pinned revision
+- 2026-11-15T05:10:24.404697+00:00 `pt-platform-map`: review → done. Accepted platform map with prototype unknowns recorded
+- 2026-11-15T05:10:24.431378+00:00 `pt-prototype-plan`: draft → ready. All three source investigations accepted
+- 2026-11-15T05:10:24.457425+00:00 `pt-prototype-plan`: ready → queued. Selecting minimum desktop proof
+- 2026-11-15T05:10:24.483709+00:00 `pt-prototype-plan`: queued → running. Using source, license, memory and platform findings
+- 2026-11-15T05:11:03.081990+00:00 `pt-prototype-plan`: running → review. Feasibility path and limitations documented
+- 2026-11-15T05:11:03.107456+00:00 `pt-prototype-plan`: review → done. Accepted public-source UI/input prototype plan
+- 2026-11-15T05:11:03.133342+00:00 `pt-investigation-decision`: draft → ready. Prototype plan accepted
+- 2026-11-15T05:11:03.158423+00:00 `pt-investigation-decision`: ready → queued. Preparing investigation decision
+- 2026-11-15T05:11:03.183970+00:00 `pt-investigation-decision`: queued → running. Reconciling findings with sprint 2 scope
+- 2026-11-15T05:11:29.836907+00:00 `pt-investigation-decision`: running → review. Decision and sprint 2 scope recorded
+- 2026-11-15T05:11:29.861320+00:00 `pt-investigation-decision`: review → done. Accepted bounded public-source prototype decision
+- 2026-11-15T06:24:12.161431+00:00 `s3-source-rebase`: ready → queued. Official v3.2.1 source migration started
+- 2026-11-15T06:24:12.186390+00:00 `s3-source-rebase`: queued → running. Submodule and wrapper build updated
+- 2026-11-15T06:24:12.212031+00:00 `s3-source-rebase`: running → review. Clean build and smoke passed; migration finding written
+- 2026-11-15T06:24:12.236907+00:00 `s3-source-rebase`: review → done. Pinned official Advance v3.2.1; build, smoke and submodule checks passed
+- 2026-11-15T06:50:46.356999+00:00 `s3-filesystem`: ready → queued. Selected as first host service after source migration
+- 2026-11-15T06:50:46.384222+00:00 `s3-filesystem`: queued → running. Implementing sandboxed filesystem against v3.2.1 interface
+- 2026-11-15T06:53:51.416308+00:00 `s3-filesystem`: running → review. Filesystem operations and path escape checks pass
+- 2026-11-15T06:53:51.444204+00:00 `s3-filesystem`: review → done. Host filesystem installed and verified; ADR 0008 recorded
+- 2026-11-15T06:53:56.637773+00:00 `s3-input`: ready → queued. Selected after filesystem completion
+- 2026-11-15T06:53:56.663008+00:00 `s3-input`: queued → running. Implementing SDL event and timer adapters
+- 2026-11-15T06:56:47.940616+00:00 `s3-audio-midi`: ready → queued. Parallel-ready host service after source migration
+- 2026-11-15T06:56:47.966110+00:00 `s3-audio-midi`: queued → running. Implementing boot-safe audio and MIDI services
+- 2026-11-15T06:58:51.989999+00:00 `s3-input`: running → review. SDL pad event and timer observer checks passed
+- 2026-11-15T06:58:52.017265+00:00 `s3-input`: review → done. Host input seam verified; firmware cursor remains boot acceptance
+- 2026-11-15T06:58:55.631861+00:00 `s3-samples`: ready → queued. Filesystem dependency complete
+- 2026-11-15T06:58:55.658623+00:00 `s3-samples`: queued → running. Implementing bounded desktop sample storage
+- 2026-11-15T07:10:08.918227+00:00 `s3-audio-midi`: running → review. Silent host audio and MIDI services boot the real application
+- 2026-11-15T07:10:09.125031+00:00 `s3-audio-midi`: review → done. Verified firmware boot and silent output identity
+- 2026-11-15T07:10:09.315776+00:00 `s3-samples`: running → review. Bounded pool loads a PCM WAV and rejects over-capacity WAV
+- 2026-11-15T07:10:09.497761+00:00 `s3-samples`: review → done. Verified capacity accounting and unchanged upstream WAV path
+- 2026-11-15T07:10:09.677817+00:00 `s3-boot`: ready → queued. All boot dependencies are complete
+- 2026-11-15T07:10:09.852264+00:00 `s3-boot`: queued → running. Full firmware boot linked and smoke exercised
+- 2026-11-15T07:10:10.031260+00:00 `s3-boot`: running → review. Real Song view screenshot and input frame hash verified
+- 2026-11-15T07:10:10.210733+00:00 `s3-boot`: review → done. Application::Init and upstream key navigation passed on macOS
+- 2026-11-15T07:10:42.088453+00:00 `s3-compatibility`: ready → queued. Boot dependency is complete
+- 2026-11-15T07:10:42.306820+00:00 `s3-compatibility`: queued → running. Verifying version-matched project persistence and WAV loading
+- 2026-11-15T07:11:24.524515+00:00 `s3-compatibility`: running → review. Disposable project reload and bounded WAV checks pass
+- 2026-11-15T07:11:24.731703+00:00 `s3-compatibility`: review → done. Version-matched compatibility evidence recorded
+- 2026-11-15T07:11:30.231652+00:00 `s3-portability`: ready → queued. Boot dependency is complete
+- 2026-11-15T07:11:30.449666+00:00 `s3-portability`: queued → running. Attempting Linux and Windows build checks and documenting patch seams
+- 2026-11-15T07:16:19.675298+00:00 `s3-portability`: running → blocked. Linux recheck stopped by automatic approval usage limit; Windows target SDL2 SDK absent
+- 2026-11-15T08:10:59.792118+00:00 `s4-runtime-contracts`: ready → queued. Start host backend architecture decision
+- 2026-11-15T08:11:00.254064+00:00 `s4-runtime-contracts`: queued → running. Trace upstream audio and MIDI contracts for macOS backend
+- 2026-11-15T08:12:39.221570+00:00 `s4-runtime-contracts`: running → review. Runtime contracts and backend boundary recorded in ADR 0013
+- 2026-11-15T08:12:39.247584+00:00 `s4-runtime-contracts`: review → done. Source interfaces and SDL/CoreMIDI contracts reviewed

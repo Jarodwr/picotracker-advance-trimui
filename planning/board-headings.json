@@ -1,0 +1,37 @@
+{
+  "planning/orchestrator-design.kanban.md": [
+    "To Do",
+    "In Progress",
+    "Review",
+    "Blocked",
+    "Done"
+  ],
+  "planning/sprint-1-investigation.kanban.md": [
+    "To Do",
+    "In Progress",
+    "Blocked",
+    "Review",
+    "Done"
+  ],
+  "planning/sprint-2-desktop-prototype.kanban.md": [
+    "To Do",
+    "In Progress",
+    "Blocked",
+    "Review",
+    "Done"
+  ],
+  "planning/sprint-3-application-boot.kanban.md": [
+    "To Do",
+    "In Progress",
+    "Blocked",
+    "Review",
+    "Done"
+  ],
+  "planning/sprint-4-macos-audio-midi.kanban.md": [
+    "To Do",
+    "In Progress",
+    "Blocked",
+    "Review",
+    "Done"
+  ]
+}

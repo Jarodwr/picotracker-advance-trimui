@@ -1,0 +1,63 @@
+version = 1
+
+# Wrapper files that cannot carry an in-file header: data, patches, templates,
+# the packaged readme and generated-input tables.
+[[annotations]]
+path = [
+  "packaging/trimui/share/**",
+  "packaging/trimui/README.txt",
+  "packaging/trimui/licenses/components.tsv",
+  "packaging/macos/Info.plist.in",
+  "packaging/macos/THIRD_PARTY_NOTICES.md",
+  ".gitignore",
+  ".gitmodules",
+  "REUSE.toml",
+  "NOTICE.md",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Copyright (c) 2026 Jarod Wright and contributors"
+SPDX-License-Identifier = "GPL-3.0-only"
+
+# A diff against upstream InstrumentView.cpp, which is BSD-3-Clause AND GPL-3.0-only.
+[[annotations]]
+path = "patches/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 2018 Discodirt",
+  "Copyright (c) 2024 xiphonics, inc.",
+  "Copyright (c) 2026 Jarod Wright and contributors",
+]
+SPDX-License-Identifier = "BSD-3-Clause AND GPL-3.0-only"
+
+# Verbatim third-party licence texts shipped in the pak. Each text governs the
+# component it names (see packaging/trimui/licenses/components.tsv); it is not
+# relicensed.
+[[annotations]]
+path = [
+  "packaging/trimui/licenses/SDL2-zlib.txt",
+  "packaging/trimui/licenses/braids-MIT.txt",
+  "packaging/trimui/licenses/libsamplerate-BSD-2-Clause.txt",
+  "packaging/trimui/licenses/libstdc++-runtime-exception.txt",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Copyright the holders named in each text"
+SPDX-License-Identifier = "LicenseRef-Third-Party-Licence-Text"
+
+# Files that are not part of the published wrapper (orchestration and planning
+# material; the publish card removes most of it). Covered so that the tree lints
+# clean until then.
+[[annotations]]
+path = [
+  "CMakeLists.txt",
+  "README.md",
+  "CONTRIBUTING.md",
+  "ORCHESTRATOR.md",
+  "orchestrator.py",
+  "docs/**",
+  "planning/**",
+  "runs/**",
+  "work/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Copyright (c) 2026 Jarod Wright and contributors"
+SPDX-License-Identifier = "GPL-3.0-only"
