@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "HostBattery.h"
 #include "System/System/System.h"
 #include <chrono>
 #include <random>
@@ -14,7 +15,8 @@ class HostSystem final : public System {
 public:
   unsigned long GetClock() override { return Millis(); }
   void GetBatteryState(BatteryState &state) override {
-    state = {0, 0, 0, false, true};
+    const HostBatteryReading r = battery_.Get(Millis());
+    state = {r.percentage, r.voltage_mv, r.temperature_c, r.charging, r.error};
   }
   void SetDisplayBrightness(unsigned char) override {}
   void PostQuitMessage() override { quit_ = true; }
@@ -33,4 +35,5 @@ private:
   std::chrono::steady_clock::time_point start_ = std::chrono::steady_clock::now();
   std::mt19937 random_{std::random_device{}()};
   bool quit_ = false;
+  HostBattery battery_;
 };

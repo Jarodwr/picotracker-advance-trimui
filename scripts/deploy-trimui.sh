@@ -80,7 +80,9 @@ export HOME="${HOME:-$USERDATA}"
     ls -l /lib/libc.so.6 /lib/ld-linux-aarch64.so.1 2>&1
 } >"$OUT/smoke.log"
 cd "$APP_DIR" || exit 1
-"$APP_DIR/bin/picotracker" --smoke --data-dir "$DATA_DIR" --sample-memory-mib 48 \
+# --display trimui, as the real launcher: without it the app opens a plain 720x720 window on the
+# vendor SDL and aborts with 'malloc(): corrupted top size' while loading the project (C-56).
+"$APP_DIR/bin/picotracker" --smoke --display trimui --data-dir "$DATA_DIR" --sample-memory-mib 48 \
     --screenshot "$OUT/smoke.bmp" >>"$OUT/smoke.log" 2>&1
 echo "$?" >"$OUT/RESULT"
 EOF

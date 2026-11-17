@@ -24,4 +24,10 @@ SysMutex *platform_mutex() { return &host_mutex; }
 uint32_t millis() { return System::GetInstance()->Millis(); }
 uint32_t micros() { return System::GetInstance()->Micros(); }
 void platform_brightness(uint8_t value) { System::GetInstance()->SetDisplayBrightness(value); }
-int16_t battery_health() { return 0; }
+// Sysfs has no numeric state of health: -1 ("NA") when a battery is present,
+// the old desktop value otherwise.
+int16_t battery_health() {
+  BatteryState state;
+  System::GetInstance()->GetBatteryState(state);
+  return state.error ? 0 : -1;
+}

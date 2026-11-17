@@ -22,6 +22,9 @@ fi
 "${cmake_bin}" --build "${build_dir}" -j 4
 "${build_dir}/host_filesystem_check"
 "${build_dir}/host_input_map_check"
+"${build_dir}/host_quit_dialog_check"
+"${build_dir}/host_battery_check"
+"${build_dir}/host_volume_check"
 SDL_AUDIODRIVER=dummy "${build_dir}/host_audio_capture_check"
 SDL_AUDIODRIVER=dummy "${build_dir}/host_record_check"
 SDL_VIDEODRIVER=dummy "${build_dir}/host_event_check"

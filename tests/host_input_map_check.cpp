@@ -63,8 +63,8 @@ void DefaultMappings() {
 
 void UnboundControls() {
   HostInputMap map;
-  // X, Y, Menu, L3, R3, buttons past the device's 11, and anything unknown.
-  for (const int b : {2, 3, 8, 9, 10, 11, 12, 99}) {
+  // X, Y, L3, R3, buttons past the device's 11, and anything unknown.
+  for (const int b : {2, 3, 9, 10, 11, 12, 99}) {
     CHECK(map.ResolvePadButton(Btn(b)) == EPBT_INVALID);
     CHECK(map.Feed(Btn(b), true).empty());
     CHECK(map.Feed(Btn(b), false).empty());
@@ -234,7 +234,72 @@ void StickFlagOffReleases() {
 
 } // namespace
 
+const HostInputAction kRequest{Type::QuitRequest, EPBT_INVALID};
+const int kMenu = 8;
+
+void MenuRequestsDialog() {
+  HostInputMap map;
+  CHECK(Is(map.Feed(Btn(kMenu), true), {kRequest}));
+  CHECK(map.Feed(Btn(kMenu), false).empty());
+  CHECK(Is(map.Feed(Btn(kMenu), true), {kRequest})); // each press asks again
+  CHECK(map.Feed(Btn(kMenu), true).empty());          // duplicate ignored
+  CHECK(map.Feed(Btn(kMenu), false).empty());
+  // Menu during a latched chord is swallowed.
+  for (int b : {kSelect, kStart, kL1, kR1}) map.Feed(Btn(b), true);
+  CHECK(map.Feed(Btn(kMenu), true).empty());
+}
+
+void SelectStartHold() {
+  HostInputMap map;
+  CHECK(map.Tick(0).empty());
+  CHECK(Is(map.Feed(Btn(kSelect), true), {Press(EPBT_SELECT)}));
+  CHECK(Is(map.Feed(Btn(kStart), true), {Press(EPBT_START)}));
+  CHECK(map.Tick(100).empty()); // timing starts at the first tick seeing both
+  CHECK(map.Tick(100 + HostInputMap::kComboHoldMs - 1).empty());
+  // Held long enough: pad releases (no stuck buttons), then the request.
+  CHECK(Is(map.Tick(100 + HostInputMap::kComboHoldMs),
+           {Release(EPBT_SELECT), Release(EPBT_START), kRequest}));
+  CHECK(map.Tick(5000).empty()); // latched: asks once per hold
+  CHECK(map.Feed(Btn(kSelect), false).empty());
+  CHECK(map.Tick(6000).empty()); // Start still down, still latched
+  CHECK(map.Feed(Btn(kStart), false).empty());
+  CHECK(map.Tick(7000).empty());
+  // After both are up a new hold works again.
+  map.Feed(Btn(kSelect), true);
+  map.Feed(Btn(kStart), true);
+  map.Tick(8000);
+  CHECK(Is(map.Tick(8000 + HostInputMap::kComboHoldMs),
+           {Release(EPBT_SELECT), Release(EPBT_START), kRequest}));
+}
+
+void SelectStartShortTapDoesNotAsk() {
+  HostInputMap map;
+  map.Feed(Btn(kSelect), true);
+  map.Feed(Btn(kStart), true);
+  map.Tick(0);
+  map.Tick(500);
+  CHECK(Is(map.Feed(Btn(kStart), false), {Release(EPBT_START)}));
+  CHECK(map.Tick(5000).empty()); // timing restarted, only Select is down
+  map.Feed(Btn(kStart), true);
+  CHECK(map.Tick(5100).empty());
+  CHECK(map.Tick(5100 + HostInputMap::kComboHoldMs - 1).empty());
+}
+
+void ComboThenChordStillQuits() {
+  HostInputMap map;
+  map.Feed(Btn(kSelect), true);
+  map.Feed(Btn(kStart), true);
+  map.Tick(0);
+  map.Tick(HostInputMap::kComboHoldMs); // dialog request
+  map.Feed(Btn(kL1), true);
+  CHECK(Is(map.Feed(Btn(kR1), true), {Release(EPBT_L), kQuit}));
+}
+
 int main() {
+  MenuRequestsDialog();
+  SelectStartHold();
+  SelectStartShortTapDoesNotAsk();
+  ComboThenChordStillQuits();
   DefaultMappings();
   UnboundControls();
   Rebinding();

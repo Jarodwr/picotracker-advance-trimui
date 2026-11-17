@@ -42,6 +42,9 @@ public:
   // Translate one SDL event into pad actions (empty when nothing changed).
   std::vector<HostInputAction> Handle(const SDL_Event &event);
 
+  // Select+Start hold detection needs a clock (HostInputMap::Tick).
+  std::vector<HostInputAction> Tick(Uint32 nowMs) { return map_.Tick(nowMs); }
+
   int DeviceCount() const { return static_cast<int>(devices_.size()); }
   const HostInputMap &Map() const { return map_; }
 

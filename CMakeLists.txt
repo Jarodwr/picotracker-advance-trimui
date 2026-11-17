@@ -50,6 +50,8 @@ target_include_directories(host_filesystem_check PRIVATE
 add_executable(host_event_check
   tests/host_event_check.cpp
   platform/desktop/HostEvent.cpp
+  platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostVolumeOverlay.cpp
   platform/desktop/HostTimer.cpp
   platform/desktop/SDLWindow.cpp
   ${UPSTREAM}/UIFramework/BasicDatas/GUIRect.cpp
@@ -74,6 +76,32 @@ add_executable(host_input_map_check
   platform/desktop/HostInputMap.cpp
 )
 target_include_directories(host_input_map_check PRIVATE
+  platform/desktop
+  ${UPSTREAM}
+)
+
+add_executable(host_quit_dialog_check
+  tests/host_quit_dialog_check.cpp
+  platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostInputMap.cpp
+)
+target_include_directories(host_quit_dialog_check PRIVATE
+  platform/desktop
+  ${UPSTREAM}
+)
+
+add_executable(host_battery_check
+  tests/host_battery_check.cpp
+  platform/desktop/HostBattery.cpp
+)
+target_include_directories(host_battery_check PRIVATE platform/desktop)
+
+add_executable(host_volume_check
+  tests/host_volume_check.cpp
+  platform/desktop/HostVolume.cpp
+  platform/desktop/HostVolumeOverlay.cpp
+)
+target_include_directories(host_volume_check PRIVATE
   platform/desktop
   ${UPSTREAM}
 )
@@ -166,6 +194,10 @@ add_executable(picotracker_desktop
   platform/desktop/HostFileSystem.cpp
   platform/desktop/HostTimer.cpp
   platform/desktop/HostEvent.cpp
+  platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostBattery.cpp
+  platform/desktop/HostVolume.cpp
+  platform/desktop/HostVolumeOverlay.cpp
   platform/desktop/HostPlatform.cpp
   platform/desktop/HostRecord.cpp
   platform/desktop/HostDisplay.cpp
@@ -292,6 +324,10 @@ add_executable(host_record_check
   platform/desktop/HostFileSystem.cpp
   platform/desktop/HostTimer.cpp
   platform/desktop/HostEvent.cpp
+  platform/desktop/HostQuitDialog.cpp
+  platform/desktop/HostBattery.cpp
+  platform/desktop/HostVolume.cpp
+  platform/desktop/HostVolumeOverlay.cpp
   platform/desktop/HostPlatform.cpp
   platform/desktop/HostDisplay.cpp
   platform/desktop/HostFirmwareInfo.cpp

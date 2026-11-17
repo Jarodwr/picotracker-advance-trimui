@@ -12,6 +12,9 @@
 #include "HostSystem.h"
 #include "HostFileSystem.h"
 #include "HostEvent.h"
+#include "HostQuitDialog.h"
+#include "HostVolume.h"
+#include "HostVolumeOverlay.h"
 #include "SDLJoystickSource.h"
 #include "HostTimer.h"
 #include "HostDisplay.h"
@@ -24,6 +27,7 @@
 #include "LinuxBackend.h"
 #endif
 #include "Application/Application.h"
+#include "Application/AppWindow.h"
 #include "Services/Audio/Audio.h"
 #include "Services/Midi/MidiService.h"
 #include <cstdlib>
@@ -227,6 +231,23 @@ int main(int argc, char **argv) {
   joystick.LoadProfileFile(inputProfilePath);
   events.SetJoystickSource(&joystick);
   HostWindowFactory factory(renderer, events);
+  HostQuitDialog quitDialog;
+  factory.SetQuitDialog(&quitDialog);
+  // C-63: indicator for volume changes made by NextUI's keymon. Inert without
+  // the shared settings file (every off-device run).
+  HostVolumeFile volumeFile;
+  HostVolumeWatcher volumeWatcher(volumeFile);
+  HostVolumeOverlay volumeOverlay;
+  factory.SetVolumeOverlay(&volumeOverlay);
+  auto volumeTick = [&] {
+    const uint32_t now = SDL_GetTicks();
+    if (volumeWatcher.Poll(now)) volumeOverlay.Show(volumeWatcher.Volume(), now);
+    if (volumeOverlay.Tick(now)) factory.Refresh();
+  };
+  events.SetQuitDialog(&quitDialog, [&factory] { factory.Refresh(); });
+  std::fprintf(stderr,
+               "controls: Menu (or hold Select+Start 1 s) opens the quit "
+               "dialog, A = yes, B = no; Select+Start+L1+R1 exits at once\n");
   I_GUIWindowFactory::Install(&factory);
   HostDisplayInstall(renderer);
   AudioSettings audioSettings;
@@ -244,13 +265,17 @@ int main(int argc, char **argv) {
   LinuxBackend backend(audioSettings, std::move(backendOptions));
 #endif
   backend.Install();
-  events.SetPump([&backend] { backend.Pump(); });
+  events.SetPump([&backend, &volumeTick] {
+    backend.Pump();
+    volumeTick();
+  });
 #else
   // No platform backend yet: silent audio and no MIDI devices (ADR 0013).
   HostMidiService midi;
   MidiService::Install(&midi);
   HostAudio audio(audioSettings, false);
   Audio::Install(&audio);
+  events.SetPump(volumeTick);
 #endif
   HostSamplePool samples(sampleMemory);
   SamplePool::Install(&samples);
@@ -284,6 +309,12 @@ int main(int argc, char **argv) {
   }
 #endif
   events.SetWindow(application->GetWindow());
+  // Any quit saves first: PowerDown() autosaves the open project the way the
+  // firmware does before cutting power, then HostSystem::PowerDown returns.
+  events.SetQuitFlush([application] {
+    if (auto *app = static_cast<AppWindow *>(application->GetWindow()))
+      app->PowerDown();
+  });
   application->GetWindow()->Update(true);
   application->GetWindow()->ClockTick();
   for (const char *path : sampleProbes) {

@@ -130,6 +130,11 @@ void HostInputMap::Apply(const InputSource &origin, TrimuiControl control,
         return;
       }
     }
+    if (control == TrimuiControl::Menu) {
+      if (!chordLatched_)
+        out.push_back({HostInputAction::Type::QuitRequest, EPBT_INVALID});
+      return;
+    }
     const auto button = PadButtonFor(control);
     if (button == EPBT_INVALID) return;
     delivered_[Idx(control)] = true;
@@ -188,6 +193,35 @@ std::vector<HostInputAction> HostInputMap::FeedAxis(int axis, float value) {
   return out;
 }
 
+std::vector<HostInputAction> HostInputMap::Tick(uint32_t nowMs) {
+  std::vector<HostInputAction> out;
+  const bool selectStart = heldCount_[Idx(TrimuiControl::Select)] != 0 &&
+                           heldCount_[Idx(TrimuiControl::Start)] != 0;
+  if (!selectStart) {
+    comboTiming_ = false;
+    if (heldCount_[Idx(TrimuiControl::Select)] == 0 &&
+        heldCount_[Idx(TrimuiControl::Start)] == 0)
+      comboLatched_ = false;
+    return out;
+  }
+  if (comboLatched_ || chordLatched_) return out;
+  if (!comboTiming_) {
+    comboTiming_ = true;
+    comboStartMs_ = nowMs;
+    return out;
+  }
+  if (nowMs - comboStartMs_ < kComboHoldMs) return out;
+  comboLatched_ = true;
+  comboTiming_ = false;
+  for (const auto m : {TrimuiControl::Select, TrimuiControl::Start}) {
+    if (!delivered_[Idx(m)]) continue;
+    delivered_[Idx(m)] = false;
+    out.push_back({HostInputAction::Type::PadRelease, PadButtonFor(m)});
+  }
+  out.push_back({HostInputAction::Type::QuitRequest, EPBT_INVALID});
+  return out;
+}
+
 std::vector<HostInputAction> HostInputMap::ReleaseAll() {
   std::vector<HostInputAction> out;
   for (int c = 0; c < kControls; ++c) {
@@ -199,6 +233,8 @@ std::vector<HostInputAction> HostInputMap::ReleaseAll() {
   heldCount_.fill(0);
   delivered_.fill(false);
   chordLatched_ = false;
+  comboLatched_ = false;
+  comboTiming_ = false;
   stickState_[0] = stickState_[1] = 0;
   return out;
 }

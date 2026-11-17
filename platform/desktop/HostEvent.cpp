@@ -4,6 +4,8 @@
 
 #include "HostEvent.h"
 
+#include "HostQuitDialog.h"
+#include "HostVolumeOverlay.h"
 #include "HostTimer.h"
 #include "SDLJoystickSource.h"
 #include "SDLWindow.h"
@@ -31,33 +33,49 @@ GUIEventPadButtonType MapKey(SDL_Keycode key) {
 
 } // namespace
 
+void HostEventManager::RequestQuit() {
+  if (quit_) return;
+  if (flush_) flush_();
+  quit_ = true;
+  if (window_) {
+    GUIEvent quit(0, ET_SYSQUIT, SDL_GetTicks());
+    window_->DispatchEvent(quit);
+  }
+}
+
+// Joystick actions go through the quit dialog (when installed): it swallows
+// pad events while open and consumes the QuitRequest and its A/B answers.
+void HostEventManager::Dispatch(const std::vector<HostInputAction> &input) {
+  const Uint32 now = SDL_GetTicks();
+  const auto actions = dialog_ ? dialog_->Process(input, now) : input;
+  for (const auto &action : actions) {
+    if (action.type == HostInputAction::Type::Quit) {
+      RequestQuit();
+    } else if (action.type == HostInputAction::Type::QuitRequest) {
+      // Without a dialog installed a Menu press does nothing.
+    } else if (window_) {
+      GUIEvent mapped(action.button,
+                      action.type == HostInputAction::Type::PadPress
+                          ? ET_PADBUTTONDOWN
+                          : ET_PADBUTTONUP,
+                      now);
+      window_->DispatchEvent(mapped);
+    }
+  }
+  if (dialog_) {
+    if (dialog_->TakeChanged() && redraw_) redraw_();
+    if (dialog_->QuitConfirmed()) RequestQuit();
+  }
+}
+
 bool HostEventManager::Handle(const SDL_Event &event) {
   if (event.type == SDL_QUIT ||
       (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
-    quit_ = true;
-    if (window_) {
-      GUIEvent quit(0, ET_SYSQUIT, SDL_GetTicks());
-      window_->DispatchEvent(quit);
-    }
+    RequestQuit();
     return true;
   }
   if (joystick_ && SDLJoystickSource::Handles(event.type)) {
-    for (const auto &action : joystick_->Handle(event)) {
-      if (action.type == HostInputAction::Type::Quit) {
-        quit_ = true;
-        if (window_) {
-          GUIEvent quit(0, ET_SYSQUIT, SDL_GetTicks());
-          window_->DispatchEvent(quit);
-        }
-      } else if (window_) {
-        GUIEvent mapped(action.button,
-                        action.type == HostInputAction::Type::PadPress
-                            ? ET_PADBUTTONDOWN
-                            : ET_PADBUTTONUP,
-                        SDL_GetTicks());
-        window_->DispatchEvent(mapped);
-      }
-    }
+    Dispatch(joystick_->Handle(event));
     return true;
   }
   if (event.type != SDL_KEYDOWN && event.type != SDL_KEYUP) return false;
@@ -79,6 +97,7 @@ int HostEventManager::MainLoop() {
     SDL_Event event;
     if (SDL_WaitEventTimeout(&event, pump_ ? 4 : 16)) Handle(event);
     while (SDL_PollEvent(&event)) Handle(event);
+    if (joystick_) Dispatch(joystick_->Tick(SDL_GetTicks()));
     timers_.Pump();
     if (pump_) pump_();
     const Uint32 now = SDL_GetTicks();
@@ -96,5 +115,12 @@ int HostEventManager::GetKeyCode(const char *name) {
 }
 
 I_GUIWindowImp &HostWindowFactory::CreateWindowImp(GUICreateWindowParams &) {
-  return *new SDLWindow(renderer_);
+  window_ = new SDLWindow(renderer_);
+  window_->SetOverlay(dialog_);
+  window_->SetVolumeOverlay(volume_);
+  return *window_;
+}
+
+void HostWindowFactory::Refresh() {
+  if (window_) window_->Refresh();
 }

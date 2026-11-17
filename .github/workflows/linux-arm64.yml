@@ -25,6 +25,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++ cmake ninja-build libsdl2-dev python3
       - run: scripts/check-linux.sh
 
   trimui-cross:

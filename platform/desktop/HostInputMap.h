@@ -14,6 +14,7 @@
 #include "UIFramework/BasicDatas/GUIEvent.h"
 
 #include <array>
+#include <cstdint>
 #include <map>
 #include <vector>
 
@@ -67,7 +68,9 @@ struct InputSource {
 };
 
 struct HostInputAction {
-  enum class Type { PadPress, PadRelease, Quit };
+  // Quit is the unconditional hard exit (chord, no dialog); QuitRequest asks
+  // the host to open the confirmation dialog (Menu, or Select+Start held).
+  enum class Type { PadPress, PadRelease, Quit, QuitRequest };
   Type type = Type::Quit;
   GUIEventPadButtonType button = EPBT_INVALID; // pad types only
 
@@ -86,6 +89,8 @@ public:
 
   static constexpr int kLeftStickX = 0;
   static constexpr int kLeftStickY = 1;
+  // Select + Start held together this long asks for the quit dialog (C-60).
+  static constexpr uint32_t kComboHoldMs = 1000;
   static constexpr float kStickPress = 0.50f;
   static constexpr float kStickRelease = 0.35f;
 
@@ -105,6 +110,10 @@ public:
   // Analog axis moved; value is normalised to [-1, 1]. Only the left stick
   // does anything, and only with left_stick_as_dpad on.
   std::vector<HostInputAction> FeedAxis(int axis, float value);
+  // Call regularly with a millisecond clock: detects the Select+Start hold.
+  // The two pad releases keep the firmware free of stuck buttons, then
+  // QuitRequest. Latches until both are released.
+  std::vector<HostInputAction> Tick(uint32_t nowMs);
   // Device lost or window unfocused: release everything delivered.
   std::vector<HostInputAction> ReleaseAll();
 
@@ -120,6 +129,9 @@ private:
   std::array<int, kControls> heldCount_{};
   std::array<bool, kControls> delivered_{}; // a PadPress was forwarded
   bool chordLatched_ = false;
+  bool comboLatched_ = false;
+  bool comboTiming_ = false;
+  uint32_t comboStartMs_ = 0;
   bool leftStickAsDpad_ = false;
   // Per-axis state: -1, 0 or +1 for the direction currently pressed.
   int stickState_[2] = {0, 0};

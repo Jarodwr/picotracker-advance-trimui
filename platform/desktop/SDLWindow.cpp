@@ -4,6 +4,8 @@
 
 #include "SDLWindow.h"
 #include "Adapters/adv/display/font.h"
+#include "HostQuitDialog.h"
+#include "HostVolumeOverlay.h"
 #include "UIFramework/SimpleBaseClasses/GUIWindow.h"
 #include <algorithm>
 
@@ -43,7 +45,16 @@ void SDLWindow::FillPixels(int x, int y, int width, int height,
 
 void SDLWindow::Flush() {
   if (!dirty_ || !texture_) return;
-  SDL_UpdateTexture(texture_, nullptr, pixels_.data(), kSize * sizeof(uint32_t));
+  const uint32_t *frame = pixels_.data();
+  const bool dialog = overlay_ && overlay_->IsOpen();
+  const bool volume = volume_ && volume_->IsVisible();
+  if (dialog || volume) {
+    composed_ = pixels_;
+    if (volume) volume_->Draw(composed_.data(), kSize);
+    if (dialog) overlay_->Draw(composed_.data(), kSize);
+    frame = composed_.data();
+  }
+  SDL_UpdateTexture(texture_, nullptr, frame, kSize * sizeof(uint32_t));
   SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
   SDL_RenderPresent(renderer_);
   dirty_ = false;

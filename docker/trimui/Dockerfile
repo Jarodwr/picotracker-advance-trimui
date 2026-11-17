@@ -41,8 +41,15 @@ RUN set -e; K=/usr/share/keyrings/ubuntu-archive-keyring.gpg; \
 
 # Copy of the libstdc++ headers with the glibc >= 2.30 clock APIs disabled
 # (pthread_cond_clockwait and friends do not exist in glibc 2.23).
-RUN mkdir -p /opt/trimui-cxx && cp -a /usr/include/c++/13 /opt/trimui-cxx/c++ \
-    && cp -a /usr/include/aarch64-linux-gnu/c++/13 /opt/trimui-cxx/arch \
+# The host arch decides where g++-13-aarch64-linux-gnu puts them: an arm64 build
+# host has them in /usr/include, an amd64 one (CI) under /usr/aarch64-linux-gnu.
+# The same split applies to GCC's own headers (gcc vs gcc-cross), so link them.
+RUN if [ -d /usr/aarch64-linux-gnu/include/c++/13 ]; then \
+      C=/usr/aarch64-linux-gnu/include/c++/13; A=$C/aarch64-linux-gnu; \
+    else C=/usr/include/c++/13; A=/usr/include/aarch64-linux-gnu/c++/13; fi \
+    && ln -s "$(aarch64-linux-gnu-gcc-13 -print-file-name=include)" /opt/trimui-gccinc \
+    && mkdir -p /opt/trimui-cxx && cp -a "$C" /opt/trimui-cxx/c++ \
+    && cp -a "$A" /opt/trimui-cxx/arch \
     && sed -i -E 's@^#define (_GLIBCXX_USE_PTHREAD_(COND_CLOCKWAIT|MUTEX_CLOCKLOCK|RWLOCK_CLOCKLOCK)) 1@/* #undef \1 (glibc < 2.30) */@' \
          /opt/trimui-cxx/arch/bits/c++config.h \
     && ! grep -q '^#define _GLIBCXX_USE_PTHREAD_.*CLOCK' /opt/trimui-cxx/arch/bits/c++config.h
@@ -55,7 +62,7 @@ RUN mkdir -p /opt/trimui-devhdrs && cp -a /usr/include/alsa /usr/include/libdrm 
 # GCC ignores --sysroot for its multiarch default paths, so headers, start
 # files and libraries are listed explicitly and the host's are never used.
 ENV TRIMUI_GCC_FLAGS="--sysroot=/opt/trimui-glibc -nostdinc \
- -isystem /usr/lib/gcc/aarch64-linux-gnu/13/include \
+ -isystem /opt/trimui-gccinc \
  -isystem /opt/trimui-glibc/usr/include/aarch64-linux-gnu -isystem /opt/trimui-glibc/usr/include \
  -isystem /opt/trimui-devhdrs -isystem /opt/trimui-devhdrs/libdrm \
  -B/opt/trimui-glibc/usr/lib/aarch64-linux-gnu -L/opt/trimui-glibc/usr/lib/aarch64-linux-gnu \
